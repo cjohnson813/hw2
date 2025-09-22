@@ -31,17 +31,49 @@ let serverObj =  http.createServer(function(req,res){
 function schedule(qObj,res) {
 	if (availableTimes[qObj.day].some(time => time == qObj.time))
 	{
+		// remove the time from availableTimes
+		const index = availableTimes[qObj.day].findIndex(time => time == qObj.time);
+		if (index !== -1) {
+			availableTimes[qObj.day].splice(index, 1);
+		}
+		// add the appointment
+		appointments.push({
+			name: qObj.name,
+			day: qObj.day,
+			time: qObj.time,
+		});
+		//send confirmation
 		res.writeHead(200,{'content-type':'text/plain'});
 		res.write("scheduled");
 		res.end();
 	}
-	else 
+	else
+	{
 		error(res,400,"Can't schedule");
-
- 
+	}
 }
 
-function cancel(qObj) {
+function cancel(qObj)
+{
+	// find appointment from url
+	const index = appointments.findIndex(a =>
+		a.name === qObj.name &&
+		a.day === qObj.day &&
+		a.time === qObj.time );
+	if (index !== -1) {
+		const { day, time } = appointments.splice(index, 1)[0];
+	//put time slot back into availableTimes
+		if (!availableTimes[day]) availableTimes[day] = [];
+		if availableTimes[day.some(time => time == time)) {
+			availableTimes[day].push(time);
+		}
+		res.writeHead(200, { 'content-type': 'text/plain' });
+		res.write('canceled');
+		res.end();
+	}
+	else {
+		error(res, 404, 'Appointment Not Found');
+	}
 }
 
 function error(response,status,message) {
