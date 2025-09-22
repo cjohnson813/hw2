@@ -24,7 +24,6 @@ let serverObj =  http.createServer(function(req,res){
 			break;
 		default:
 			error(res,404,"pathname unknown");
-
 	}
 });
 
@@ -46,6 +45,8 @@ function schedule(qObj,res) {
 		res.writeHead(200,{'content-type':'text/plain'});
 		res.write("scheduled");
 		res.end();
+		console.log("Appointments:", appointments);
+		console.log("Available Times:", availableTimes);
 	}
 	else
 	{
@@ -72,6 +73,8 @@ function cancel(qObj)
 		res.writeHead(200, { 'content-type': 'text/plain' });
 		res.write('Appointment has been canceled');
 		res.end();
+		console.log("Appointments:", appointments);
+		console.log("Available Times:", availableTimes);
 	}
 	else {
 		error(res, 404, 'Appointment not found');
