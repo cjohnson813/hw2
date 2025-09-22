@@ -22,6 +22,9 @@ let serverObj =  http.createServer(function(req,res){
 		case "/cancel":
 			cancel(urlObj.query,res);
 			break;
+		case "/check":
+			check(urlObj.query,res);
+			break;
 		default:
 			error(res,404,"pathname unknown");
 	}
@@ -54,7 +57,7 @@ function schedule(qObj,res) {
 	}
 }
 
-function cancel(qObj)
+function cancel(qObj, res)
 {
 	// find appointment from url
 	const index = appointments.findIndex(a =>
@@ -67,25 +70,37 @@ function cancel(qObj)
 		if (!availableTimes[day]) {
 			 availableTimes[day] = [];
 		}
-		if (!availableTimes[day].some(time => time == time)) {
+		if (!availableTimes[day].includes(time)) {
 			availableTimes[day].push(time);
 		}
-		res.writeHead(200, { 'content-type': 'text/plain' });
+		res.writeHead(200,{'content-type':'text/plain'});
 		res.write('Appointment has been canceled');
 		res.end();
 		console.log("Appointments:", appointments);
 		console.log("Available Times:", availableTimes);
 	}
 	else {
-		error(res, 404, 'Appointment not found');
+		error(res,404,"Appointment not found");
 	}
 }
 
-function error(response,status,message) {
+function check(qObj, res)
+{
+	// checks if input day is an option
+	if (!availableTimes[qObj.day]) {
+		return error(res,400,"Unknown Day")
+	}
+	// returns positive if day & time are available
+	else if (availableTimes[qObj.day].includes(qObj.time)) {
+		res.writeHead(200,{'Content-Type':'text/plain'});
+		res.write("Appointment time is available");
+		res.end();
+	}
+	else {
+		res.writeHead(200,{'Content-Type':'text/plain'});
+		res.write("Appointment time is not available");
+		res.end();
+	}
 
-	response.writeHead(status,{'content-type':'text/plain'});
-	response.write(message);
-	response.end();
+	console.log(`Checked: day=${qObj.day}, time=${qObj.time}`);
 }
-
-serverObj.listen(80,function(){console.log("listening on port 80")});
