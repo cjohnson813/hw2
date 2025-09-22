@@ -63,16 +63,18 @@ function cancel(qObj)
 	if (index !== -1) {
 		const { day, time } = appointments.splice(index, 1)[0];
 	//put time slot back into availableTimes
-		if (!availableTimes[day]) availableTimes[day] = [];
-		if availableTimes[day.some(time => time == time)) {
+		if (!availableTimes[day]) {
+			 availableTimes[day] = [];
+		}
+		if (!availableTimes[day].some(time => time == time)) {
 			availableTimes[day].push(time);
 		}
 		res.writeHead(200, { 'content-type': 'text/plain' });
-		res.write('canceled');
+		res.write('Appointment has been canceled');
 		res.end();
 	}
 	else {
-		error(res, 404, 'Appointment Not Found');
+		error(res, 404, 'Appointment not found');
 	}
 }
 
