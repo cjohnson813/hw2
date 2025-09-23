@@ -15,6 +15,7 @@ const appointments = [
 let serverObj =  http.createServer(function(req,res){
 	console.log(req.url);
 	let urlObj = url.parse(req.url,true);
+	//parsed url options
 	switch (urlObj.pathname) {
 		case "/schedule":
 			schedule(urlObj.query,res);
@@ -44,13 +45,15 @@ function schedule(qObj,res) {
 			day: qObj.day,
 			time: qObj.time,
 		});
-		//send confirmation
+		//send user confirmation
 		res.writeHead(200,{'content-type':'text/plain'});
 		res.write("scheduled");
 		res.end();
+		//print updated arrays to console
 		console.log("Appointments:", appointments);
 		console.log("Available Times:", availableTimes);
 	}
+	//error response
 	else
 	{
 		error(res,400,"Can't schedule");
@@ -73,12 +76,15 @@ function cancel(qObj, res)
 		if (!availableTimes[day].includes(time)) {
 			availableTimes[day].push(time);
 		}
+		//send user response to notify appt canceled
 		res.writeHead(200,{'content-type':'text/plain'});
 		res.write('Appointment has been canceled');
 		res.end();
+		//print updated array to console
 		console.log("Appointments:", appointments);
 		console.log("Available Times:", availableTimes);
 	}
+	//error response
 	else {
 		error(res,404,"Appointment not found");
 	}
@@ -87,17 +93,18 @@ function cancel(qObj, res)
 function check(qObj, res)
 {
 	// checks if input day is an option
-	if (!availableTimes[qObj.day]) {
-		return error(res,400,"Unknown Day")
+	if (!availableTimes[qObj.day] || !availableTimes[qObj.time]) {
+		return error(res,400,"Unknown Day or Time")
 	}
 	// returns positive if day & time are available
-	else if (availableTimes[qObj.day].includes(qObj.time)) {
-		res.writeHead(200,{'Content-Type':'text/plain'});
+	if (availableTimes[qObj.day].includes(qObj.time)) {
+		res.writeHead(200,{'content-type':'text/plain'});
 		res.write("Appointment time is available");
 		res.end();
 	}
+	// returns negative res if appt slot is not in array
 	else {
-		res.writeHead(200,{'Content-Type':'text/plain'});
+		res.writeHead(200,{'content-type':'text/plain'});
 		res.write("Appointment time is not available");
 		res.end();
 	}
