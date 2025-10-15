@@ -1,5 +1,7 @@
 const http = require('http');
 const url = require('url');
+// import the sendFile module
+const { sendFile } = require('./sendFile');
 
 const availableTimes = {
     Monday: ["1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30"],
@@ -26,8 +28,10 @@ let serverObj =  http.createServer(function(req,res){
 		case "/check":
 			check(urlObj.query,res);
 			break;
+		// replaced error with a map for serving index.html based on "/"
 		default:
-			error(res,404,"pathname unknown");
+			const filePath = urlObj.pathname === "/" ? "./index.html" : "." + urlObj.pathname;
+			sendFile(res, filePath);
 	}
 });
 
